@@ -10,7 +10,7 @@ authors = [{name = "FlyEsports Team"}]
 requires-python = ">=3.11"
 dependencies = [
     "fastapi==0.104.1",
-    "uvicorn[standard]==0.24.0",
+    "uvicorn[standard]==0.35.0",
     "sqlalchemy==2.0.23",
     "asyncpg==0.29.0",
     "redis==5.0.1",
