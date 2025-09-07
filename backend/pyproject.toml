@@ -19,7 +19,7 @@ dependencies = [
     "python-dotenv==1.0.0",
     "psutil==5.9.6",
     "structlog==23.2.0",
-    "alembic==1.12.1",
+    "alembic==1.16.5",
     "python-jose[cryptography]==3.3.0",
     "passlib[bcrypt]==1.7.4",
     "python-multipart==0.0.6",
