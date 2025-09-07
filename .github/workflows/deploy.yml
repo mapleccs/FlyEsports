@@ -1,0 +1,193 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: ${{ github.repository }}/backend
+  FRONTEND_IMAGE_NAME: ${{ github.repository }}/frontend
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    environment: staging
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment"
+          # Here you would add your actual deployment commands
+          # For example, using docker-compose, Kubernetes, or other deployment tools
+          
+          # Example with docker-compose (adjust for your setup):
+          # scp docker-compose.prod.yml user@staging-server:/app/
+          # ssh user@staging-server "cd /app && docker-compose -f docker-compose.prod.yml pull && docker-compose -f docker-compose.prod.yml up -d"
+          
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests against staging"
+          # Add smoke tests here
+          # curl -f ${{ secrets.STAGING_URL }}/health
+          
+      - name: Notify deployment
+        run: |
+          echo "✅ Staging deployment completed successfully"
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    environment: production
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Validate release
+        if: github.event_name == 'push'
+        run: |
+          echo "🔍 Validating release ${{ github.ref_name }}"
+          # Add pre-deployment validation here
+          # Check if all tests passed, security scans are clean, etc.
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=latest" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Create deployment backup
+        run: |
+          echo "💾 Creating deployment backup"
+          # Add backup commands here
+          
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying version ${{ steps.version.outputs.version }} to production"
+          
+          # Example deployment commands (adjust for your infrastructure):
+          # kubectl set image deployment/backend backend=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          # kubectl set image deployment/frontend frontend=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          # kubectl rollout status deployment/backend
+          # kubectl rollout status deployment/frontend
+          
+      - name: Run health checks
+        run: |
+          echo "🏥 Running post-deployment health checks"
+          # Add comprehensive health checks here
+          # curl -f ${{ secrets.PRODUCTION_URL }}/health
+          # curl -f ${{ secrets.PRODUCTION_URL }}/health/detailed
+          
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests against production"
+          # Add production smoke tests here
+          
+      - name: Update status page
+        run: |
+          echo "📊 Updating status page"
+          # Update external status page or monitoring dashboard
+          
+      - name: Create release notes
+        if: github.event_name == 'push'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: release } = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: context.ref.replace('refs/tags/', '')
+            });
+            
+            // Add deployment info to release notes
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+              body: release.body + '\n\n🚀 **Deployed to production**: ' + new Date().toISOString()
+            });
+            
+      - name: Notify team
+        if: always()
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "✅ Production deployment completed successfully"
+            # Send success notification (Slack, Discord, email, etc.)
+          else
+            echo "❌ Production deployment failed"
+            # Send failure notification and trigger rollback if needed
+          fi
+
+  rollback-production:
+    runs-on: ubuntu-latest
+    name: Rollback Production
+    environment: production
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'rollback'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Get previous version
+        id: prev-version
+        run: |
+          # Logic to determine previous stable version
+          # This could query your deployment history, container registry, etc.
+          echo "version=previous-stable" >> $GITHUB_OUTPUT
+          
+      - name: Rollback deployment
+        run: |
+          echo "🔄 Rolling back to version ${{ steps.prev-version.outputs.version }}"
+          # Add rollback commands here
+          
+      - name: Verify rollback
+        run: |
+          echo "✅ Verifying rollback completed successfully"
+          # Add verification checks here
+          
+      - name: Notify rollback
+        run: |
+          echo "📣 Rollback completed, production restored to ${{ steps.prev-version.outputs.version }}"

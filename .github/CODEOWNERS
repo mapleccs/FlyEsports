@@ -1,0 +1,100 @@
+# Global code owners
+# These owners will be the default owners for everything in the repo.
+# Unless a later match takes precedence, they will be requested for
+# review when someone opens a pull request.
+* @maintainers
+
+# Core configuration files
+/.github/ @maintainers
+/docker-compose*.yml @maintainers
+/Makefile @maintainers
+/.env.example @maintainers
+/.gitignore @maintainers
+/.gitattributes @maintainers
+/.pre-commit-config.yaml @maintainers
+
+# Documentation
+/README.md @maintainers
+/CONTRIBUTING.md @maintainers
+/CHANGELOG.md @maintainers
+/CLAUDE.md @maintainers
+/information/ @maintainers
+
+# Backend architecture and core files
+/backend/src/domain/ @maintainers @backend-team
+/backend/src/core/ @maintainers @backend-team
+/backend/alembic/ @maintainers @backend-team
+
+# Backend API endpoints
+/backend/src/presentation/api/ @backend-team
+/backend/src/presentation/schemas/ @backend-team
+
+# Database models and infrastructure
+/backend/src/infrastructure/database/ @maintainers @backend-team @database-team
+/backend/src/infrastructure/repositories/ @backend-team @database-team
+
+# Authentication and security
+/backend/src/infrastructure/services/jwt_service.py @maintainers @security-team
+/backend/src/presentation/dependencies/auth.py @maintainers @security-team
+/backend/src/presentation/api/routes/auth.py @maintainers @security-team
+
+# External integrations
+/backend/src/infrastructure/external_apis/ @backend-team @integrations-team
+
+# Background tasks and queues  
+/backend/src/infrastructure/tasks/ @backend-team @infrastructure-team
+
+# Frontend core architecture
+/frontend/src/router/ @maintainers @frontend-team
+/frontend/src/shared/ @maintainers @frontend-team
+
+# Frontend features
+/frontend/src/features/auth/ @frontend-team @security-team
+/frontend/src/features/*/stores/ @frontend-team
+/frontend/src/features/*/types/ @frontend-team
+
+# Frontend build and configuration
+/frontend/package.json @maintainers @frontend-team
+/frontend/tsconfig.json @maintainers @frontend-team
+/frontend/vite.config.ts @maintainers @frontend-team
+/frontend/Dockerfile @maintainers @frontend-team @infrastructure-team
+
+# Testing
+/backend/tests/ @backend-team @qa-team
+/frontend/tests/ @frontend-team @qa-team
+/backend/conftest.py @maintainers @backend-team
+/frontend/vitest.config.ts @maintainers @frontend-team
+
+# Docker and deployment
+/backend/Dockerfile @maintainers @infrastructure-team
+/frontend/Dockerfile @maintainers @infrastructure-team
+/docker-compose*.yml @maintainers @infrastructure-team
+
+# CI/CD workflows
+/.github/workflows/ @maintainers @devops-team
+/.github/dependabot.yml @maintainers @devops-team
+
+# Database migrations (require special attention)
+/backend/alembic/versions/ @maintainers @backend-team @database-team
+
+# Security-sensitive files (require security team review)
+/backend/src/core/config.py @maintainers @security-team
+/.github/workflows/deploy.yml @maintainers @devops-team @security-team
+
+# Performance-critical components
+/backend/src/infrastructure/cache/ @backend-team @performance-team
+/backend/src/infrastructure/tasks/*tasks.py @backend-team @performance-team
+
+# API documentation and schemas
+/backend/src/presentation/schemas/ @backend-team @documentation-team
+/information/03-api-design-specification.md @maintainers @backend-team @documentation-team
+
+# Frontend UI components (require design review)
+/frontend/src/shared/components/ @frontend-team @design-team
+/frontend/src/features/*/components/ @frontend-team @design-team
+
+# Business logic (require domain expert review)
+/backend/src/domain/aggregates/ @maintainers @backend-team @domain-experts
+/backend/src/domain/services/ @maintainers @backend-team @domain-experts
+/information/04-domain-model-design.md @maintainers @domain-experts
+/information/07-rating-algorithm-specification.md @maintainers @domain-experts

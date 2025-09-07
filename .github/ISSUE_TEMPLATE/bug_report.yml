@@ -1,0 +1,154 @@
+name: 🐛 Bug Report
+description: Create a report to help us improve
+title: "[BUG]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide as much detail as possible to help us understand and reproduce the issue.
+
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: Environment
+      description: Please select all that apply
+      options:
+        - label: Backend (FastAPI/Python)
+        - label: Frontend (Vue.js/TypeScript)
+        - label: Docker/Container
+        - label: Database (PostgreSQL)
+        - label: Authentication/JWT
+        - label: API Integration
+        - label: UI/UX
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Critical (System crash, data loss)
+        - High (Major feature broken)
+        - Medium (Feature partially broken)
+        - Low (Minor issue, cosmetic)
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what happened and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: A clear and concise description of what actually happened
+      placeholder: What actually happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Recordings
+      description: If applicable, add screenshots or recordings to help explain your problem
+      placeholder: Drag and drop images here or paste them
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Please copy and paste any relevant log output
+      placeholder: Paste error logs, stack traces, or console output here
+      render: shell
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Browser (if frontend issue)
+      description: Which browser(s) are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other (please specify in additional context)
+      multiple: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you running?
+      placeholder: e.g., Windows 11, macOS 13.0, Ubuntu 22.04
+
+  - type: input
+    id: version
+    attributes:
+      label: Application Version
+      description: What version of FlyEsports are you using?
+      placeholder: e.g., v1.2.0, latest, commit hash
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment Method
+      description: How is the application deployed?
+      options:
+        - Docker Compose (local)
+        - Docker (production)
+        - Local development
+        - Cloud deployment
+        - Other (please specify)
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Any additional information that might be helpful
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided all requested information above
+          required: true
+        - label: I have tested this with the latest version
+          required: false
+        - label: I am willing to submit a pull request to fix this issue
+          required: false

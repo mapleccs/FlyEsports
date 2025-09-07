@@ -1,0 +1,96 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Force LF for specific file types (Unix-style)
+*.py text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.vue text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.dockerfile text eol=lf
+Dockerfile text eol=lf
+Makefile text eol=lf
+
+# Force CRLF for Windows-specific files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+
+# Python specific
+*.pyc binary
+*.pyo binary
+*.pyd binary
+
+# Node.js specific
+*.node binary
+
+# Database files
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Compiled files
+*.so binary
+*.dylib binary
+*.dll binary
+*.exe binary
+
+# Archives
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.xz binary
+*.7z binary
+*.rar binary
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Media files
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.mp3 binary
+*.wav binary
+*.flac binary
+
+# Documents
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# Git attributes for specific paths
+# Ensure shell scripts are executable
+*.sh text eol=lf
+/backend/scripts/* text eol=lf
+
+# Linguist settings - exclude certain files from language detection
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true
+/frontend/dist/* linguist-generated=true
+/backend/alembic/versions/* linguist-generated=true
+
+# Diff settings
+*.json diff=json
+*.py diff=python
+*.md diff=markdown

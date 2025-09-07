@@ -1,0 +1,182 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: flyesports_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: flyesports
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - flyesports_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d flyesports"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: flyesports_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-flyesports_redis_dev}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - flyesports_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flyesports_backend
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/flyesports
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-jwt-secret-key-for-development-only-change-in-production}
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - "8000:8000"
+    networks:
+      - flyesports_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Worker
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flyesports_celery_worker
+    restart: unless-stopped
+    command: celery -A src.infrastructure.tasks.celery_app worker --loglevel=info --concurrency=4 -Q high_priority,medium_priority,low_priority
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/flyesports
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/1
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-jwt-secret-key-for-development-only-change-in-production}
+    networks:
+      - flyesports_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    healthcheck:
+      test: ["CMD", "celery", "-A", "src.infrastructure.tasks.celery_app", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Beat Scheduler
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flyesports_celery_beat
+    restart: unless-stopped
+    command: celery -A src.infrastructure.tasks.celery_app beat --loglevel=info --schedule=/tmp/celerybeat-schedule
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/flyesports
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/1
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-jwt-secret-key-for-development-only-change-in-production}
+    networks:
+      - flyesports_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  # Celery Flower (Task Monitoring)
+  celery-flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flyesports_celery_flower
+    restart: unless-stopped
+    command: celery -A src.infrastructure.tasks.celery_app flower --port=5555 --broker=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/1
+    environment:
+      - ENVIRONMENT=development
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-flyesports_redis_dev}@redis:6379/1
+    ports:
+      - "5555:5555"
+    networks:
+      - flyesports_network
+    depends_on:
+      - redis
+      - celery-worker
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: flyesports_frontend
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_APP_TITLE=FlyEsports
+      - VITE_APP_ENV=development
+    ports:
+      - "3000:8080"
+    networks:
+      - flyesports_network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  flyesports_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

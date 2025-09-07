@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cp:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker:*)",
+      "Bash(alembic revision:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(rm:*)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": []
+  }
+}
