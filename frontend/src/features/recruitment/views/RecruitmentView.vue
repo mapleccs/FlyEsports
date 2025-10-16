@@ -2,10 +2,7 @@
   <layout-default>
     <div class="recruitment-container">
       <div class="recruitment-header">
-        <a-page-header
-          title="招募专区"
-          sub-title="发布招募信息，寻找志同道合的队友"
-        >
+        <a-page-header title="招募专区" sub-title="发布招募信息，寻找志同道合的队友">
           <template #extra>
             <a-space>
               <a-button @click="$router.push('/recruitment/create')">
@@ -86,12 +83,14 @@
         <!-- 招募列表 -->
         <div class="recruitment-list">
           <a-row :gutter="[16, 16]">
-            <a-col :xs="24" :sm="12" :xl="8" v-for="recruitment in filteredRecruitments" :key="recruitment.id">
-              <a-card 
-                class="recruitment-card"
-                hoverable
-                @click="handleCardClick(recruitment)"
-              >
+            <a-col
+              :xs="24"
+              :sm="12"
+              :xl="8"
+              v-for="recruitment in filteredRecruitments"
+              :key="recruitment.id"
+            >
+              <a-card class="recruitment-card" hoverable @click="handleCardClick(recruitment)">
                 <template #title>
                   <div class="card-title">
                     <a-tag :color="getTypeColor(recruitment.type)">
@@ -100,7 +99,7 @@
                     <span class="recruitment-title">{{ recruitment.title }}</span>
                   </div>
                 </template>
-                
+
                 <template #extra>
                   <a-dropdown>
                     <a @click.prevent.stop>
@@ -120,7 +119,10 @@
                   <!-- 发布者信息 -->
                   <div class="publisher-info">
                     <a-space>
-                      <a-avatar :src="recruitment.publisher.avatar" :alt="recruitment.publisher.username" />
+                      <a-avatar
+                        :src="recruitment.publisher.avatar"
+                        :alt="recruitment.publisher.username"
+                      />
                       <div>
                         <div class="publisher-name">{{ recruitment.publisher.username }}</div>
                         <div class="publish-time">{{ formatTime(recruitment.createdAt) }}</div>
@@ -131,7 +133,7 @@
                   <!-- 招募详情 -->
                   <div class="recruitment-details">
                     <p class="description">{{ recruitment.description }}</p>
-                    
+
                     <div class="requirements">
                       <a-row :gutter="8">
                         <a-col :span="12" v-if="recruitment.position">
@@ -143,7 +145,9 @@
                         <a-col :span="12" v-if="recruitment.rankRequirement">
                           <div class="requirement-item">
                             <span class="label">段位:</span>
-                            <a-tag size="small" color="gold">{{ getRankText(recruitment.rankRequirement) }}</a-tag>
+                            <a-tag size="small" color="gold">{{
+                              getRankText(recruitment.rankRequirement)
+                            }}</a-tag>
                           </div>
                         </a-col>
                         <a-col :span="12" v-if="recruitment.experience">
@@ -171,8 +175,8 @@
                   <!-- 操作按钮 -->
                   <div class="recruitment-actions">
                     <a-space>
-                      <a-button 
-                        type="primary" 
+                      <a-button
+                        type="primary"
                         size="small"
                         @click.stop="handleApply(recruitment)"
                         :disabled="recruitment.status === 'closed'"
@@ -180,17 +184,14 @@
                         <SendOutlined />
                         {{ recruitment.type === 'team' ? '申请加入' : '推荐自己' }}
                       </a-button>
-                      <a-button 
-                        size="small"
-                        @click.stop="handleContact(recruitment)"
-                      >
+                      <a-button size="small" @click.stop="handleContact(recruitment)">
                         <MessageOutlined />
                         私信
                       </a-button>
-                      <a-button 
+                      <a-button
                         size="small"
                         @click.stop="handleFavorite(recruitment)"
-                        :class="{ 'favorited': recruitment.isFavorited }"
+                        :class="{ favorited: recruitment.isFavorited }"
                       >
                         <HeartOutlined :style="{ color: recruitment.isFavorited ? '#f50' : '' }" />
                         {{ recruitment.favoriteCount || 0 }}
@@ -210,17 +211,11 @@
 
         <!-- 加载更多 -->
         <div class="load-more" v-if="hasMore">
-          <a-button 
-            :loading="loading" 
-            @click="handleLoadMore"
-            block
-          >
-            加载更多
-          </a-button>
+          <a-button :loading="loading" @click="handleLoadMore" block> 加载更多 </a-button>
         </div>
 
         <!-- 空状态 -->
-        <a-empty 
+        <a-empty
           v-if="filteredRecruitments.length === 0 && !loading"
           description="暂无招募信息"
           :image="Empty.PRESENTED_IMAGE_SIMPLE"
@@ -246,7 +241,7 @@ import {
   ContactsOutlined,
   SendOutlined,
   MessageOutlined,
-  HeartOutlined
+  HeartOutlined,
 } from '@ant-design/icons-vue'
 import LayoutDefault from '@/shared/components/layouts/LayoutDefault.vue'
 
@@ -268,7 +263,8 @@ const recruitments = ref([
     id: 1,
     type: 'player',
     title: '寻找黄金段位ADC选手',
-    description: '我们是一支以友谊为基础的业余战队，目前缺少一名ADC选手。希望你有良好的游戏态度和团队合作精神。',
+    description:
+      '我们是一支以友谊为基础的业余战队，目前缺少一名ADC选手。希望你有良好的游戏态度和团队合作精神。',
     position: 'adc',
     rankRequirement: 'gold',
     experience: 2,
@@ -276,16 +272,16 @@ const recruitments = ref([
     publisher: {
       id: 1,
       username: 'TeamLeader',
-      avatar: 'https://via.placeholder.com/40x40?text=TL'
+      avatar: 'https://via.placeholder.com/40x40?text=TL',
     },
     contact: {
       type: 'QQ',
-      value: '123456789'
+      value: '123456789',
     },
     status: 'open',
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
     favoriteCount: 5,
-    isFavorited: false
+    isFavorited: false,
   },
   {
     id: 2,
@@ -299,17 +295,17 @@ const recruitments = ref([
     publisher: {
       id: 2,
       username: 'JungleKing',
-      avatar: 'https://via.placeholder.com/40x40?text=JK'
+      avatar: 'https://via.placeholder.com/40x40?text=JK',
     },
     contact: {
       type: '微信',
-      value: 'jungleking2024'
+      value: 'jungleking2024',
     },
     status: 'open',
     createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
     favoriteCount: 12,
-    isFavorited: true
-  }
+    isFavorited: true,
+  },
 ])
 
 const filteredRecruitments = computed(() => {
@@ -319,8 +315,10 @@ const filteredRecruitments = computed(() => {
     if (selectedRank.value && recruitment.rankRequirement !== selectedRank.value) return false
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
-      return recruitment.title.toLowerCase().includes(keyword) ||
-             recruitment.description.toLowerCase().includes(keyword)
+      return (
+        recruitment.title.toLowerCase().includes(keyword) ||
+        recruitment.description.toLowerCase().includes(keyword)
+      )
     }
     return true
   })
@@ -387,19 +385,27 @@ const handleLoadMore = () => {
 // 工具函数
 const getTypeColor = (type: string) => {
   switch (type) {
-    case 'player': return 'blue'
-    case 'team': return 'green'
-    case 'substitute': return 'orange'
-    default: return 'default'
+    case 'player':
+      return 'blue'
+    case 'team':
+      return 'green'
+    case 'substitute':
+      return 'orange'
+    default:
+      return 'default'
   }
 }
 
 const getTypeText = (type: string) => {
   switch (type) {
-    case 'player': return '招募队员'
-    case 'team': return '寻找战队'
-    case 'substitute': return '招募替补'
-    default: return '未知'
+    case 'player':
+      return '招募队员'
+    case 'team':
+      return '寻找战队'
+    case 'substitute':
+      return '招募替补'
+    default:
+      return '未知'
   }
 }
 
@@ -409,7 +415,7 @@ const getPositionText = (position: string) => {
     jungle: '打野',
     mid: '中单',
     adc: 'ADC',
-    support: '辅助'
+    support: '辅助',
   }
   return positions[position] || position
 }
@@ -421,7 +427,7 @@ const getRankText = (rank: string) => {
     gold: '黄金',
     platinum: '铂金',
     diamond: '钻石',
-    master: '大师'
+    master: '大师',
   }
   return ranks[rank] || rank
 }
@@ -430,13 +436,13 @@ const formatTime = (date: Date) => {
   const now = Date.now()
   const diff = now - date.getTime()
   const hours = Math.floor(diff / (1000 * 60 * 60))
-  
+
   if (hours < 1) return '刚刚'
   if (hours < 24) return `${hours}小时前`
-  
+
   const days = Math.floor(hours / 24)
   if (days < 7) return `${days}天前`
-  
+
   return date.toLocaleDateString('zh-CN')
 }
 
@@ -568,7 +574,7 @@ onMounted(() => {
   .requirements {
     font-size: 12px;
   }
-  
+
   .requirement-item {
     flex-direction: column;
     align-items: flex-start;

@@ -2,12 +2,9 @@
   <layout-default>
     <div class="live-container">
       <div class="live-header">
-        <a-page-header
-          title="赛事直播"
-          sub-title="观看正在进行的比赛直播"
-        />
+        <a-page-header title="赛事直播" sub-title="观看正在进行的比赛直播" />
       </div>
-      
+
       <div class="live-content">
         <!-- 直播状态筛选 -->
         <div class="live-filters">
@@ -24,14 +21,21 @@
         <!-- 直播列表 -->
         <div class="live-grid">
           <a-row :gutter="[16, 16]">
-            <a-col :xs="24" :sm="12" :lg="8" :xl="6" v-for="stream in filteredStreams" :key="stream.id">
+            <a-col
+              :xs="24"
+              :sm="12"
+              :lg="8"
+              :xl="6"
+              v-for="stream in filteredStreams"
+              :key="stream.id"
+            >
               <a-card
                 hoverable
                 class="live-card"
                 :class="{
                   'live-active': stream.status === 'live',
                   'live-upcoming': stream.status === 'upcoming',
-                  'live-ended': stream.status === 'ended'
+                  'live-ended': stream.status === 'ended',
                 }"
                 @click="handleStreamClick(stream)"
               >
@@ -49,13 +53,13 @@
                     </div>
                   </div>
                 </template>
-                
+
                 <a-card-meta :title="stream.title" :description="stream.description">
                   <template #avatar>
                     <a-avatar :src="stream.tournament.logo" :alt="stream.tournament.name" />
                   </template>
                 </a-card-meta>
-                
+
                 <div class="live-info">
                   <div class="teams-info">
                     <span class="team">{{ stream.teamA.name }}</span>
@@ -73,14 +77,12 @@
         </div>
 
         <!-- 空状态 -->
-        <a-empty 
+        <a-empty
           v-if="filteredStreams.length === 0"
           description="暂无直播内容"
           :image="Empty.PRESENTED_IMAGE_SIMPLE"
         >
-          <a-button type="primary" @click="$router.push('/tournaments')">
-            查看赛事安排
-          </a-button>
+          <a-button type="primary" @click="$router.push('/tournaments')"> 查看赛事安排 </a-button>
         </a-empty>
       </div>
     </div>
@@ -108,10 +110,10 @@ const streams = ref([
     startTime: new Date(),
     tournament: {
       name: 'FlyEsports 春季赛',
-      logo: 'https://via.placeholder.com/40x40?text=T'
+      logo: 'https://via.placeholder.com/40x40?text=T',
     },
     teamA: { name: 'Thunder Hawks' },
-    teamB: { name: 'Lightning Wolves' }
+    teamB: { name: 'Lightning Wolves' },
   },
   {
     id: 2,
@@ -123,11 +125,11 @@ const streams = ref([
     startTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2小时后
     tournament: {
       name: 'FlyEsports 春季赛',
-      logo: 'https://via.placeholder.com/40x40?text=T'
+      logo: 'https://via.placeholder.com/40x40?text=T',
     },
     teamA: { name: '待定' },
-    teamB: { name: '待定' }
-  }
+    teamB: { name: '待定' },
+  },
 ])
 
 const filteredStreams = computed(() => {
@@ -153,19 +155,27 @@ const handleStreamClick = (stream: any) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'live': return 'red'
-    case 'upcoming': return 'blue'
-    case 'ended': return 'gray'
-    default: return 'default'
+    case 'live':
+      return 'red'
+    case 'upcoming':
+      return 'blue'
+    case 'ended':
+      return 'gray'
+    default:
+      return 'default'
   }
 }
 
 const getStatusText = (status: string) => {
   switch (status) {
-    case 'live': return '直播中'
-    case 'upcoming': return '即将开始'
-    case 'ended': return '已结束'
-    default: return '未知'
+    case 'live':
+      return '直播中'
+    case 'upcoming':
+      return '即将开始'
+    case 'ended':
+      return '已结束'
+    default:
+      return '未知'
   }
 }
 
@@ -181,7 +191,7 @@ const formatTime = (time: Date) => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 

@@ -74,7 +74,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
-        literal_binds=True,
+        literal_binds=False,
         dialect_opts={"paramstyle": "named"},
     )
 
@@ -104,8 +104,7 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
-# Force offline mode for autogenerate when models are available
-if context.is_offline_mode() or (MODELS_AVAILABLE and context.config.cmd_opts and getattr(context.config.cmd_opts, 'autogenerate', False)):
+if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()

@@ -1,0 +1,61 @@
+# Development Dockerfile for FlyEsports Frontend
+# This Dockerfile is optimized for development with hot module replacement (HMR)
+
+FROM node:18-alpine as base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    git \
+    && rm -rf /var/cache/apk/*
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables for development
+ENV NODE_ENV=development \
+    CHOKIDAR_USEPOLLING=true \
+    CHOKIDAR_INTERVAL=1000 \
+    VITE_HMR_TIMEOUT=60000
+
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
+
+# Configure npm settings for better performance
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set fund false && \
+    npm config set audit false
+
+# Install dependencies with cache optimization
+RUN npm ci --only=production=false --silent && \
+    npm cache clean --force
+
+# Create directories for cache and logs
+RUN mkdir -p /app/.vite /app/logs
+
+# Copy source code
+COPY . .
+
+# Copy startup script
+COPY scripts/start-dev.sh /app/start-dev.sh
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S flyesports && \
+    adduser -S flyesports -u 1001 -G flyesports
+
+# Change ownership of the app directory and make script executable
+RUN chown -R flyesports:flyesports /app && \
+    chmod +x /app/start-dev.sh
+
+# Switch to non-root user
+USER flyesports
+
+# Expose Vite dev server port
+EXPOSE 3000
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start with npm run dev directly
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

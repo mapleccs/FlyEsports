@@ -4,37 +4,27 @@
       <template #title>
         <h2>注册</h2>
       </template>
-      <a-form
-        :model="form"
-        :rules="rules"
-        @finish="handleSubmit"
-        layout="vertical"
-      >
+      <a-form :model="form" :rules="rules" @finish="handleSubmit" layout="vertical">
         <a-form-item name="email" label="邮箱">
           <a-input v-model:value="form.email" placeholder="请输入邮箱" />
         </a-form-item>
         <a-form-item name="username" label="用户名">
-          <a-input v-model:value="form.username" placeholder="请输入用户名" />
+          <a-input
+            v-model:value="form.username"
+            placeholder="请输入用户名（字母、数字、下划线、中划线）"
+          />
+          <div class="input-hint">
+            用户名只能包含字母、数字、下划线(_)和中划线(-)，不能使用邮箱格式
+          </div>
         </a-form-item>
         <a-form-item name="password" label="密码">
-          <a-input-password
-            v-model:value="form.password"
-            placeholder="请输入密码"
-          />
+          <a-input-password v-model:value="form.password" placeholder="请输入密码" />
         </a-form-item>
         <a-form-item name="confirm_password" label="确认密码">
-          <a-input-password
-            v-model:value="form.confirm_password"
-            placeholder="请再次输入密码"
-          />
+          <a-input-password v-model:value="form.confirm_password" placeholder="请再次输入密码" />
         </a-form-item>
         <a-form-item>
-          <a-button
-            type="primary"
-            html-type="submit"
-            block
-            :loading="authStore.loading"
-          >
+          <a-button type="primary" html-type="submit" block :loading="authStore.loading">
             注册
           </a-button>
         </a-form-item>
@@ -70,7 +60,12 @@ const rules = {
   ],
   username: [
     { required: true, message: '请输入用户名' },
-    { min: 2, message: '用户名至少2位' },
+    { min: 3, message: '用户名至少3位字符' },
+    { max: 50, message: '用户名最多50位字符' },
+    {
+      pattern: /^[a-zA-Z0-9_-]+$/,
+      message: '用户名只能包含字母、数字、下划线(_)和中划线(-)',
+    },
   ],
   password: [
     { required: true, message: '请输入密码' },
@@ -116,6 +111,13 @@ const handleSubmit = async () => {
 .auth-links {
   text-align: center;
   margin-top: 16px;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
 .password-hint {

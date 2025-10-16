@@ -20,7 +20,7 @@ apiClient.interceptors.request.use(
     }
     return config
   },
-  (error) => {
+  error => {
     return Promise.reject(error)
   }
 )
@@ -29,11 +29,13 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     return response
   },
-  (error) => {
+  error => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token')
       window.location.href = '/auth/login'
       message.error('登录已过期，请重新登录')
+    } else if (error.response?.status === 403) {
+      message.error('权限不足，请联系管理员')
     } else if (error.response?.status >= 500) {
       message.error('服务器错误，请稍后重试')
     } else if (error.response?.data?.error?.message) {
@@ -41,7 +43,7 @@ apiClient.interceptors.response.use(
     } else if (error.message) {
       message.error(error.message)
     }
-    
+
     return Promise.reject(error)
   }
 )
