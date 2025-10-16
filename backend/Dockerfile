@@ -1,40 +1,52 @@
-FROM python:3.11-slim
+FROM python:3.11-slim as base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONPATH=/app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-    && rm -rf /var/lib/apt/lists/*
+# Create directories for logs and data
+RUN mkdir -p /app/logs /app/data
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Configure pip to use Chinese mirror for faster downloads
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple/ && \
+    pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn
 
-# Copy project
+# Install Python dependencies with specific optimizations
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy project files
 COPY . .
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser \
-    && chown -R appuser:appuser /app
+# Create non-root user with specific UID/GID for consistency
+RUN groupadd -r -g 1001 appuser && \
+    useradd -r -u 1001 -g appuser -d /app -s /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
 USER appuser
 
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+# Add startup script for better process management
+COPY --chown=appuser:appuser scripts/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-# Run the application
-CMD ["uvicorn", "src.presentation.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use the startup script as entrypoint
+CMD ["/app/start.sh"]

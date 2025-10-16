@@ -14,7 +14,7 @@ class PlayerRegisteredEvent(DomainEvent):
     """
     Event published when a new player profile is registered.
     """
-    
+
     profile_id: str = ""
     user_id: str = ""
     region_id: str = ""
@@ -22,12 +22,13 @@ class PlayerRegisteredEvent(DomainEvent):
     position: str = ""
     initial_rating: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    @property
-    def aggregate_id(self) -> str:
-        """Get the aggregate ID for this event."""
-        return self.profile_id
-    
+
+    def __post_init__(self) -> None:
+        """Initialize event with proper aggregate_id and aggregate_type."""
+        super().__post_init__()
+        self.aggregate_id = self.profile_id
+        self.aggregate_type = "PlayerProfile"
+
     @property
     def event_type(self) -> str:
         """Get the event type."""
@@ -39,24 +40,25 @@ class PlayerRatingUpdatedEvent(DomainEvent):
     """
     Event published when a player's rating is updated.
     """
-    
+
     profile_id: str = ""
     old_rating: float = 0.0
     new_rating: float = 0.0
     reason: str = ""
     match_id: Optional[str] = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    @property
-    def aggregate_id(self) -> str:
-        """Get the aggregate ID for this event."""
-        return self.profile_id
-    
+
+    def __post_init__(self) -> None:
+        """Initialize event with proper aggregate_id and aggregate_type."""
+        super().__post_init__()
+        self.aggregate_id = self.profile_id
+        self.aggregate_type = "PlayerProfile"
+
     @property
     def event_type(self) -> str:
         """Get the event type."""
         return "player.rating_updated"
-    
+
     @property
     def rating_change(self) -> float:
         """Get the rating change amount."""
@@ -68,17 +70,18 @@ class PlayerSignedEvent(DomainEvent):
     """
     Event published when a player is signed to a team.
     """
-    
+
     profile_id: str = ""
     team_id: str = ""
     locked_rating: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    @property
-    def aggregate_id(self) -> str:
-        """Get the aggregate ID for this event."""
-        return self.profile_id
-    
+
+    def __post_init__(self) -> None:
+        """Initialize event with proper aggregate_id and aggregate_type."""
+        super().__post_init__()
+        self.aggregate_id = self.profile_id
+        self.aggregate_type = "PlayerProfile"
+
     @property
     def event_type(self) -> str:
         """Get the event type."""
@@ -90,18 +93,19 @@ class PlayerReleasedEvent(DomainEvent):
     """
     Event published when a player is released from a team.
     """
-    
+
     profile_id: str = ""
     old_team_id: str = ""
     reason: str = ""
     new_rating: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    @property
-    def aggregate_id(self) -> str:
-        """Get the aggregate ID for this event."""
-        return self.profile_id
-    
+
+    def __post_init__(self) -> None:
+        """Initialize event with proper aggregate_id and aggregate_type."""
+        super().__post_init__()
+        self.aggregate_id = self.profile_id
+        self.aggregate_type = "PlayerProfile"
+
     @property
     def event_type(self) -> str:
         """Get the event type."""
@@ -113,7 +117,7 @@ class PlayerMatchCompletedEvent(DomainEvent):
     """
     Event published when a player completes a match.
     """
-    
+
     profile_id: str = ""
     match_id: str = ""
     result: str = ""
@@ -122,17 +126,18 @@ class PlayerMatchCompletedEvent(DomainEvent):
     kda: str = ""
     champion_name: str = ""
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    @property
-    def aggregate_id(self) -> str:
-        """Get the aggregate ID for this event."""
-        return self.profile_id
-    
+
+    def __post_init__(self) -> None:
+        """Initialize event with proper aggregate_id and aggregate_type."""
+        super().__post_init__()
+        self.aggregate_id = self.profile_id
+        self.aggregate_type = "PlayerProfile"
+
     @property
     def event_type(self) -> str:
         """Get the event type."""
         return "player.match_completed"
-    
+
     @property
     def rating_change(self) -> float:
         """Get the rating change from this match."""
@@ -144,17 +149,18 @@ class PlayerRankUpdatedEvent(DomainEvent):
     """
     Event published when a player's League of Legends rank is updated.
     """
-    
+
     profile_id: str = ""
     old_rank: str = ""
     new_rank: str = ""
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    @property
-    def aggregate_id(self) -> str:
-        """Get the aggregate ID for this event."""
-        return self.profile_id
-    
+
+    def __post_init__(self) -> None:
+        """Initialize event with proper aggregate_id and aggregate_type."""
+        super().__post_init__()
+        self.aggregate_id = self.profile_id
+        self.aggregate_type = "PlayerProfile"
+
     @property
     def event_type(self) -> str:
         """Get the event type."""

@@ -40,7 +40,7 @@
               </div>
             </a-card>
           </a-col>
-          
+
           <a-col :xs="24" :sm="12" :lg="8">
             <a-card hoverable class="feature-card" @click="$router.push('/schedule')">
               <div class="feature-content">
@@ -55,7 +55,7 @@
               </div>
             </a-card>
           </a-col>
-          
+
           <a-col :xs="24" :sm="12" :lg="8">
             <a-card hoverable class="feature-card" @click="$router.push('/teams')">
               <div class="feature-content">
@@ -70,7 +70,7 @@
               </div>
             </a-card>
           </a-col>
-          
+
           <a-col :xs="24" :sm="12" :lg="8">
             <a-card hoverable class="feature-card" @click="$router.push('/players')">
               <div class="feature-content">
@@ -85,7 +85,7 @@
               </div>
             </a-card>
           </a-col>
-          
+
           <a-col :xs="24" :sm="12" :lg="8">
             <a-card hoverable class="feature-card" @click="$router.push('/recruitment')">
               <div class="feature-content">
@@ -100,7 +100,7 @@
               </div>
             </a-card>
           </a-col>
-          
+
           <a-col :xs="24" :sm="12" :lg="8">
             <a-card hoverable class="feature-card" @click="$router.push('/hall')">
               <div class="feature-content">
@@ -121,10 +121,7 @@
       <!-- 最新动态 -->
       <div class="news-section">
         <a-card title="最新动态" class="news-card">
-          <a-list
-            :data-source="newsData"
-            item-layout="horizontal"
-          >
+          <a-list :data-source="newsData" item-layout="horizontal">
             <template #renderItem="{ item: news }">
               <a-list-item>
                 <a-list-item-meta :description="formatTime(news.time)">
@@ -158,7 +155,7 @@ import {
   TrophyOutlined,
   FireOutlined,
   NotificationOutlined,
-  StarOutlined
+  StarOutlined,
 } from '@ant-design/icons-vue'
 
 // 新闻数据
@@ -168,29 +165,29 @@ const newsData = ref([
     title: 'FlyEsports春季赛决赛即将开始',
     time: new Date(Date.now() - 30 * 60 * 1000), // 30分钟前
     icon: 'FireOutlined',
-    color: '#f50'
+    color: '#f50',
   },
   {
     id: 2,
     title: 'Thunder Hawks成功晋级半决赛',
     time: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2小时前
     icon: 'TrophyOutlined',
-    color: '#52c41a'
+    color: '#52c41a',
   },
   {
     id: 3,
     title: '新的招募信息已发布',
     time: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4小时前
     icon: 'NotificationOutlined',
-    color: '#1890ff'
+    color: '#1890ff',
   },
   {
     id: 4,
     title: '本周精彩集锦已更新',
     time: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1天前
     icon: 'StarOutlined',
-    color: '#fa8c16'
-  }
+    color: '#fa8c16',
+  },
 ])
 
 const handleNewsClick = (news: any) => {

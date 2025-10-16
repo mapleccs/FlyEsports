@@ -2,10 +2,7 @@
   <layout-default>
     <div class="schedule-container">
       <div class="schedule-header">
-        <a-page-header
-          title="赛程中心"
-          sub-title="查看所有赛事的详细赛程安排"
-        >
+        <a-page-header title="赛程中心" sub-title="查看所有赛事的详细赛程安排">
           <template #extra>
             <a-space>
               <a-button @click="handleExportSchedule">
@@ -33,7 +30,11 @@
                 @change="handleTournamentChange"
               >
                 <a-select-option value="">全部赛事</a-select-option>
-                <a-select-option v-for="tournament in tournaments" :key="tournament.id" :value="tournament.id">
+                <a-select-option
+                  v-for="tournament in tournaments"
+                  :key="tournament.id"
+                  :value="tournament.id"
+                >
                   {{ tournament.name }}
                 </a-select-option>
               </a-select>
@@ -60,9 +61,7 @@
               />
             </a-col>
             <a-col :xs="24" :sm="12" :md="6">
-              <a-button @click="handleResetFilters" style="width: 100%">
-                重置筛选
-              </a-button>
+              <a-button @click="handleResetFilters" style="width: 100%"> 重置筛选 </a-button>
             </a-col>
           </a-row>
         </div>
@@ -91,52 +90,45 @@
                   </a-tag>
                 </div>
               </template>
-              
-              <a-card 
-                class="match-card"
-                hoverable
-                @click="handleMatchClick(match)"
-              >
+
+              <a-card class="match-card" hoverable @click="handleMatchClick(match)">
                 <div class="match-info">
                   <div class="match-header">
                     <span class="tournament-name">{{ match.tournament.name }}</span>
                     <span class="match-round">{{ match.round }}</span>
                   </div>
-                  
+
                   <div class="teams-section">
                     <div class="team-info">
                       <a-avatar :src="match.teamA.logo" :alt="match.teamA.name" />
                       <span class="team-name">{{ match.teamA.name }}</span>
                     </div>
-                    
+
                     <div class="vs-section">
                       <span class="vs-text">VS</span>
                       <div v-if="match.score" class="score">
                         {{ match.score.teamA }} : {{ match.score.teamB }}
                       </div>
                     </div>
-                    
+
                     <div class="team-info">
                       <a-avatar :src="match.teamB.logo" :alt="match.teamB.name" />
                       <span class="team-name">{{ match.teamB.name }}</span>
                     </div>
                   </div>
-                  
+
                   <div class="match-actions">
                     <a-space>
-                      <a-button 
-                        v-if="match.status === 'live'" 
-                        type="primary" 
+                      <a-button
+                        v-if="match.status === 'live'"
+                        type="primary"
                         size="small"
                         @click.stop="handleWatchLive(match)"
                       >
                         <PlayCircleOutlined />
                         观看直播
                       </a-button>
-                      <a-button 
-                        size="small"
-                        @click.stop="handleViewDetails(match)"
-                      >
+                      <a-button size="small" @click.stop="handleViewDetails(match)">
                         查看详情
                       </a-button>
                       <a-button
@@ -160,7 +152,7 @@
           <a-calendar v-model:value="calendarValue" @select="handleCalendarSelect">
             <template #dateCellRender="{ current }">
               <div class="calendar-matches">
-                <div 
+                <div
                   v-for="match in getMatchesForDate(current)"
                   :key="match.id"
                   class="calendar-match"
@@ -168,7 +160,9 @@
                   @click="handleMatchClick(match)"
                 >
                   <div class="match-time">{{ formatTime(match.startTime) }}</div>
-                  <div class="match-teams">{{ match.teamA.shortName }} vs {{ match.teamB.shortName }}</div>
+                  <div class="match-teams">
+                    {{ match.teamA.shortName }} vs {{ match.teamB.shortName }}
+                  </div>
                 </div>
               </div>
             </template>
@@ -176,14 +170,12 @@
         </div>
 
         <!-- 空状态 -->
-        <a-empty 
+        <a-empty
           v-if="filteredMatches.length === 0"
           description="暂无赛程安排"
           :image="Empty.PRESENTED_IMAGE_SIMPLE"
         >
-          <a-button type="primary" @click="$router.push('/tournaments')">
-            查看赛事
-          </a-button>
+          <a-button type="primary" @click="$router.push('/tournaments')"> 查看赛事 </a-button>
         </a-empty>
       </div>
     </div>
@@ -194,28 +186,24 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Empty } from 'ant-design-vue'
-import { 
-  DownloadOutlined, 
-  BellOutlined, 
-  PlayCircleOutlined 
-} from '@ant-design/icons-vue'
+import { DownloadOutlined, BellOutlined, PlayCircleOutlined } from '@ant-design/icons-vue'
 import LayoutDefault from '@/shared/components/layouts/LayoutDefault.vue'
-import type { Dayjs } from 'dayjs'
-import dayjs from 'dayjs'
+import { formatDate, createDateInstance } from '@/utils/dateUtils'
+import type { DateInstance } from '@/utils/dateUtils'
 
 const router = useRouter()
 
 // 筛选状态
 const selectedTournament = ref('')
 const selectedStatus = ref('')
-const selectedDate = ref<Dayjs>()
+const selectedDate = ref<DateInstance>()
 const viewMode = ref('list')
-const calendarValue = ref(dayjs())
+const calendarValue = ref(createDateInstance())
 
 // 数据
 const tournaments = ref([
   { id: 1, name: 'FlyEsports 春季赛' },
-  { id: 2, name: 'FlyEsports 夏季赛' }
+  { id: 2, name: 'FlyEsports 夏季赛' },
 ])
 
 const matches = ref([
@@ -225,19 +213,19 @@ const matches = ref([
     round: '半决赛',
     startTime: new Date(),
     status: 'live',
-    teamA: { 
-      id: 1, 
-      name: 'Thunder Hawks', 
+    teamA: {
+      id: 1,
+      name: 'Thunder Hawks',
       shortName: 'TH',
-      logo: 'https://via.placeholder.com/40x40?text=TH' 
+      logo: 'https://via.placeholder.com/40x40?text=TH',
     },
-    teamB: { 
-      id: 2, 
-      name: 'Lightning Wolves', 
+    teamB: {
+      id: 2,
+      name: 'Lightning Wolves',
       shortName: 'LW',
-      logo: 'https://via.placeholder.com/40x40?text=LW' 
+      logo: 'https://via.placeholder.com/40x40?text=LW',
     },
-    score: { teamA: 1, teamB: 0 }
+    score: { teamA: 1, teamB: 0 },
   },
   {
     id: 2,
@@ -245,27 +233,28 @@ const matches = ref([
     round: '决赛',
     startTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
     status: 'upcoming',
-    teamA: { 
-      id: 3, 
-      name: 'Storm Eagles', 
+    teamA: {
+      id: 3,
+      name: 'Storm Eagles',
       shortName: 'SE',
-      logo: 'https://via.placeholder.com/40x40?text=SE' 
+      logo: 'https://via.placeholder.com/40x40?text=SE',
     },
-    teamB: { 
-      id: 4, 
-      name: 'Fire Dragons', 
+    teamB: {
+      id: 4,
+      name: 'Fire Dragons',
       shortName: 'FD',
-      logo: 'https://via.placeholder.com/40x40?text=FD' 
-    }
-  }
+      logo: 'https://via.placeholder.com/40x40?text=FD',
+    },
+  },
 ])
 
 const filteredMatches = computed(() => {
   return matches.value.filter(match => {
-    if (selectedTournament.value && match.tournament.id !== Number(selectedTournament.value)) return false
+    if (selectedTournament.value && match.tournament.id !== Number(selectedTournament.value))
+      return false
     if (selectedStatus.value && match.status !== selectedStatus.value) return false
     if (selectedDate.value) {
-      const matchDate = dayjs(match.startTime).format('YYYY-MM-DD')
+      const matchDate = formatDate(match.startTime, 'YYYY-MM-DD')
       const filterDate = selectedDate.value.format('YYYY-MM-DD')
       if (matchDate !== filterDate) return false
     }
@@ -312,42 +301,49 @@ const handleSubscribeSchedule = () => {
   console.log('Subscribe to schedule updates')
 }
 
-const handleCalendarSelect = (date: Dayjs) => {
-  selectedDate.value = date
+const handleCalendarSelect = (date: any) => {
+  selectedDate.value = createDateInstance(date)
 }
 
 // 工具函数
 const getMatchColor = (status: string) => {
   switch (status) {
-    case 'live': return 'red'
-    case 'upcoming': return 'blue'
-    case 'ended': return 'gray'
-    default: return 'default'
+    case 'live':
+      return 'red'
+    case 'upcoming':
+      return 'blue'
+    case 'ended':
+      return 'gray'
+    default:
+      return 'default'
   }
 }
 
 const getStatusText = (status: string) => {
   switch (status) {
-    case 'live': return '进行中'
-    case 'upcoming': return '即将开始'
-    case 'ended': return '已结束'
-    default: return '未知'
+    case 'live':
+      return '进行中'
+    case 'upcoming':
+      return '即将开始'
+    case 'ended':
+      return '已结束'
+    default:
+      return '未知'
   }
 }
 
 const formatDateTime = (date: Date) => {
-  return dayjs(date).format('MM月DD日 HH:mm')
+  return formatDate(date, 'MM月DD日 HH:mm')
 }
 
 const formatTime = (date: Date) => {
-  return dayjs(date).format('HH:mm')
+  return formatDate(date, 'HH:mm')
 }
 
-const getMatchesForDate = (date: Dayjs) => {
-  const dateStr = date.format('YYYY-MM-DD')
-  return matches.value.filter(match => 
-    dayjs(match.startTime).format('YYYY-MM-DD') === dateStr
-  )
+const getMatchesForDate = (date: any) => {
+  const dateStr =
+    typeof date.format === 'function' ? date.format('YYYY-MM-DD') : formatDate(date, 'YYYY-MM-DD')
+  return matches.value.filter(match => formatDate(match.startTime, 'YYYY-MM-DD') === dateStr)
 }
 
 onMounted(() => {
@@ -499,7 +495,7 @@ onMounted(() => {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .vs-section {
     margin: 0;
   }

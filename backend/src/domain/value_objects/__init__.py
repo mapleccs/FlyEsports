@@ -17,7 +17,7 @@ from .rating_config import RatingConfig
 __all__ = [
     "Email",
     "Position",
-    "ContractStatus", 
+    "ContractStatus",
     "Rating",
     "UserPreferences",
     "RankInfo",

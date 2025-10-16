@@ -13,10 +13,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         # Generate request ID
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
-        
+
         # Start time
         start_time = time.time()
-        
+
         # Log request
         logger.info(
             "Request started",
@@ -24,16 +24,16 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             method=request.method,
             url=str(request.url),
             user_agent=request.headers.get("user-agent"),
-            client_ip=request.client.host if request.client else None
+            client_ip=request.client.host if request.client else None,
         )
-        
+
         try:
             # Process request
             response = await call_next(request)
-            
+
             # Calculate duration
             process_time = time.time() - start_time
-            
+
             # Log response
             logger.info(
                 "Request completed",
@@ -41,18 +41,18 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 method=request.method,
                 url=str(request.url),
                 status_code=response.status_code,
-                process_time=round(process_time, 4)
+                process_time=round(process_time, 4),
             )
-            
+
             # Add request ID to response headers
             response.headers["X-Request-ID"] = request_id
-            
+
             return response
-            
+
         except Exception as exc:
             # Calculate duration
             process_time = time.time() - start_time
-            
+
             # Log error
             logger.error(
                 "Request failed",
@@ -62,9 +62,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 error=str(exc),
                 error_type=type(exc).__name__,
                 process_time=round(process_time, 4),
-                exc_info=True
+                exc_info=True,
             )
-            
+
             raise exc
 
 

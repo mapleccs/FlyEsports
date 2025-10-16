@@ -17,22 +17,31 @@
         >
           <a-menu-item key="home">主页</a-menu-item>
           <a-sub-menu key="events" title="赛事中心">
-            <a-menu-item key="tournaments">赛事管理</a-menu-item>
+            <a-menu-item key="tournaments" v-if="canManageTournaments">赛事管理</a-menu-item>
             <a-menu-item key="schedule">赛程安排</a-menu-item>
             <a-menu-item key="live">直播中心</a-menu-item>
           </a-sub-menu>
           <a-menu-item key="teams" v-if="authStore.isAuthenticated">战队</a-menu-item>
           <a-sub-menu key="players" title="选手中心">
-            <a-menu-item key="players-list">选手池</a-menu-item>
+            <a-menu-item key="player-pool" v-if="authStore.isAuthenticated">选手池</a-menu-item>
+            <a-menu-item key="players-list">选手档案</a-menu-item>
+            <a-menu-item key="player-register" v-if="authStore.isAuthenticated"
+              >选手注册</a-menu-item
+            >
             <a-menu-item key="recruitment">招募专区</a-menu-item>
           </a-sub-menu>
-          <a-menu-item key="hall" v-if="authStore.isAuthenticated">比赛大厅</a-menu-item>
+          <a-menu-item key="hall">比赛大厅</a-menu-item>
+          <a-menu-item key="admin" v-if="canAccessAdminPanel">管理后台</a-menu-item>
         </a-menu>
 
         <!-- 移动端汉堡菜单 -->
         <div class="mobile-nav">
-          <a-button type="text" @click="mobileMenuVisible = !mobileMenuVisible" class="mobile-menu-btn">
-            <MenuOutlined style="color: white; font-size: 18px;" />
+          <a-button
+            type="text"
+            @click="mobileMenuVisible = !mobileMenuVisible"
+            class="mobile-menu-btn"
+          >
+            <MenuOutlined style="color: white; font-size: 18px" />
           </a-button>
         </div>
         <div class="header-actions">
@@ -68,9 +77,7 @@
       <slot />
     </a-layout-content>
     <a-layout-footer class="footer">
-      <div class="footer-content">
-        FlyEsports © 2024 - 专业电竞赛事管理平台
-      </div>
+      <div class="footer-content">FlyEsports © 2024 - 专业电竞赛事管理平台</div>
     </a-layout-footer>
 
     <!-- 移动端抽屉菜单 -->
@@ -92,32 +99,39 @@
           <HomeOutlined />
           主页
         </a-menu-item>
-        
+
         <a-sub-menu key="events" title="赛事中心">
           <template #icon><CalendarOutlined /></template>
-          <a-menu-item key="tournaments">赛事管理</a-menu-item>
+          <a-menu-item key="tournaments" v-if="canManageTournaments">赛事管理</a-menu-item>
           <a-menu-item key="schedule">赛程安排</a-menu-item>
           <a-menu-item key="live">直播中心</a-menu-item>
         </a-sub-menu>
-        
+
         <a-menu-item key="teams" v-if="authStore.isAuthenticated">
           <TeamOutlined />
           战队
         </a-menu-item>
-        
+
         <a-sub-menu key="players" title="选手中心">
           <template #icon><UserOutlined /></template>
-          <a-menu-item key="players-list">选手池</a-menu-item>
+          <a-menu-item key="player-pool" v-if="authStore.isAuthenticated">选手池</a-menu-item>
+          <a-menu-item key="players-list">选手档案</a-menu-item>
+          <a-menu-item key="player-register" v-if="authStore.isAuthenticated">选手注册</a-menu-item>
           <a-menu-item key="recruitment">招募专区</a-menu-item>
         </a-sub-menu>
-        
-        <a-menu-item key="hall" v-if="authStore.isAuthenticated">
+
+        <a-menu-item key="hall">
           <TrophyOutlined />
           比赛大厅
         </a-menu-item>
-        
+
+        <a-menu-item key="admin" v-if="canAccessAdminPanel">
+          <SettingOutlined />
+          管理后台
+        </a-menu-item>
+
         <a-menu-divider />
-        
+
         <!-- 用户相关菜单项 -->
         <template v-if="authStore.isAuthenticated">
           <a-menu-item key="profile">
@@ -145,9 +159,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
+import { usePermissions } from '@/shared/composables/usePermissions'
 import { message } from 'ant-design-vue'
 import {
   MenuOutlined,
@@ -158,14 +173,21 @@ import {
   TrophyOutlined,
   LogoutOutlined,
   LoginOutlined,
-  UserAddOutlined
+  UserAddOutlined,
+  SettingOutlined,
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const { canAccessAdminPanel, hasPermission } = usePermissions()
 
 const selectedKeys = ref<string[]>([])
+
+// 权限检查
+const canManageTournaments = computed(() => {
+  return authStore.isAuthenticated && hasPermission('管理赛事')
+})
 const mobileMenuVisible = ref(false)
 
 const handleMenuClick = ({ key }: { key: string }) => {
@@ -185,8 +207,14 @@ const handleMenuClick = ({ key }: { key: string }) => {
     case 'teams':
       router.push('/teams')
       break
+    case 'player-pool':
+      router.push('/players/pool')
+      break
     case 'players-list':
       router.push('/players')
+      break
+    case 'player-register':
+      router.push('/players/register')
       break
     case 'recruitment':
       router.push('/recruitment')
@@ -194,12 +222,15 @@ const handleMenuClick = ({ key }: { key: string }) => {
     case 'hall':
       router.push('/hall')
       break
+    case 'admin':
+      router.push('/admin')
+      break
   }
 }
 
 const handleMobileMenuClick = ({ key }: { key: string }) => {
   mobileMenuVisible.value = false // 关闭抽屉
-  
+
   // 处理用户相关菜单项
   if (key === 'profile') {
     router.push(`/players/${authStore.user?.id}`)
@@ -219,7 +250,7 @@ const handleMobileMenuClick = ({ key }: { key: string }) => {
     router.push('/auth/register')
     return
   }
-  
+
   // 其他菜单项复用桌面端处理逻辑
   handleMenuClick({ key })
 }
@@ -239,7 +270,7 @@ const handleUserMenuClick = ({ key }: { key: string }) => {
 
 watch(
   () => route.path,
-  (path) => {
+  path => {
     if (path === '/') {
       selectedKeys.value = ['home']
     } else if (path.startsWith('/tournaments')) {
@@ -250,12 +281,18 @@ watch(
       selectedKeys.value = ['live']
     } else if (path.startsWith('/teams')) {
       selectedKeys.value = ['teams']
+    } else if (path === '/players/pool') {
+      selectedKeys.value = ['player-pool']
+    } else if (path === '/players/register') {
+      selectedKeys.value = ['player-register']
     } else if (path.startsWith('/players') && !path.startsWith('/players/')) {
       selectedKeys.value = ['players-list']
     } else if (path.startsWith('/recruitment')) {
       selectedKeys.value = ['recruitment']
     } else if (path.startsWith('/hall')) {
       selectedKeys.value = ['hall']
+    } else if (path.startsWith('/admin')) {
+      selectedKeys.value = ['admin']
     } else {
       selectedKeys.value = []
     }
@@ -356,27 +393,27 @@ watch(
   .desktop-nav {
     display: none !important;
   }
-  
+
   .mobile-nav {
     display: block;
   }
-  
+
   .header-content {
     padding: 0 16px;
   }
-  
+
   .logo h1 {
     font-size: 18px;
   }
-  
+
   .header-actions .auth-buttons {
     display: none; /* 移动端隐藏登录注册按钮，在抽屉菜单中显示 */
   }
-  
+
   .user-info {
     margin-left: 8px;
   }
-  
+
   .user-info a {
     font-size: 14px;
   }
@@ -387,11 +424,11 @@ watch(
   .header-content {
     padding: 0 16px;
   }
-  
+
   .logo h1 {
     font-size: 20px;
   }
-  
+
   .nav-menu {
     font-size: 14px;
   }
@@ -402,19 +439,19 @@ watch(
   .header-content {
     padding: 0 12px;
   }
-  
+
   .logo {
     margin-right: 12px;
   }
-  
+
   .logo h1 {
     font-size: 16px;
   }
-  
+
   .mobile-drawer {
     width: 100% !important;
   }
-  
+
   .mobile-drawer :deep(.ant-drawer-content-wrapper) {
     width: 280px !important;
   }
@@ -425,7 +462,7 @@ watch(
   .header-content {
     max-width: 1400px;
   }
-  
+
   .footer-content {
     max-width: 1400px;
   }
